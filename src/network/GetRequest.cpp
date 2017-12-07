@@ -5,7 +5,7 @@
 namespace compilerExplorer {
 namespace network{
 GetRequest::GetRequest()
-    : Request() {
+	: Request() {
 
 }
 

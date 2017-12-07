@@ -6,7 +6,7 @@ namespace compilerExplorer {
 namespace network{
 
 PostJsonRequest::PostJsonRequest()
-    : GetRequest() {
+	: GetRequest() {
 
 }
 
@@ -29,13 +29,16 @@ QJsonObject PostJsonRequest::jsonRequest(const std::map<QString, QString> &param
 	for(const auto &param : parameters) {
 		result.insert(param.first, param.second);
 	}
+	QJsonObject options;
+	options["userArguments"] = mUserArgs;
 	if(!filters().isEmpty()) {
 		QJsonObject enabledFilters;
 		for(auto filter : filters()) {
 			enabledFilters.insert(filter, "true");
 		}
-		result.insert(mFiltersKey, enabledFilters);
+		options["filters"] = enabledFilters;
 	}
+	result["options"] = options;
 	return result;
 }
 
@@ -49,6 +52,10 @@ void PostJsonRequest::setFilters(const QStringList &filters) {
 
 void PostJsonRequest::setFiltersKey(const QString &filtersKey) {
 	mFiltersKey = filtersKey;
+}
+
+void PostJsonRequest::setUserArguments(const QString &opt) {
+	mUserArgs = opt;
 }
 
 QString PostJsonRequest::requestName() const {

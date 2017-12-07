@@ -8,8 +8,8 @@ namespace compilerExplorer {
 namespace gui{
 
 CompilerExplorerOptionsWidget::CompilerExplorerOptionsWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::CompilerExplorerOptionsWidget) {
+	QWidget(parent),
+	ui(new Ui::CompilerExplorerOptionsWidget) {
 	ui->setupUi(this);
 }
 
@@ -21,17 +21,17 @@ void CompilerExplorerOptionsWidget::loadSettings(const QSettings &settings) {
 	const auto nodejsLocation = settings.value(constants::nodejsFileNameKey, QString()).toString();
 	ui->nodejsLocation->setText(nodejsLocation);
 	const auto compilerExplorerLocation = settings.value(constants::compilerExplorerLocationKey,
-	                                                     QString()).toString();
+														 QString()).toString();
 	ui->compilerExplorerLocation->setText(compilerExplorerLocation);
 	const auto useLocalServer = settings.value(constants::useLocalServerKey, true).toBool();
 	ui->useLocalServerButton->setChecked(useLocalServer);
 	ui->useRemoteServer->setChecked(!useLocalServer);
 	const auto localPort = settings.value(constants::localServerPortKey,
-	                                            10240).toInt();
+												10240).toInt();
 	ui->localPort->setValue(localPort);
 	const auto startLocalServer = settings.value(constants::startLocalServerKey, true).toBool();
 	const auto remoteServerUrl = settings.value(constants::remoteServerUrlKey,
-	                                            QString("https://gcc.godbolt.org/")).toString();
+												QString("https://gcc.godbolt.org/")).toString();
 	ui->remoteServerUrl->setText(remoteServerUrl);
 	ui->localServerGroupBox->setEnabled(useLocalServer);
 	ui->localServerSettingsGroup->setChecked(startLocalServer);
@@ -41,7 +41,7 @@ void CompilerExplorerOptionsWidget::loadSettings(const QSettings &settings) {
 void CompilerExplorerOptionsWidget::apply(QSettings &settings) {
 	const auto nodejsLocation = settings.value(constants::nodejsFileNameKey, QString()).toString();
 	const auto compilerExplorerLocation = settings.value(constants::compilerExplorerLocationKey,
-	                                                     QString()).toString();
+														 QString()).toString();
 	const auto useLocalServer = settings.value(constants::useLocalServerKey).toBool();
 	const auto startLocalServer = settings.value(constants::startLocalServerKey, true).toBool();
 	const auto remoteServerUrl = settings.value(constants::remoteServerUrlKey, QString()).toString();
@@ -55,18 +55,18 @@ void CompilerExplorerOptionsWidget::apply(QSettings &settings) {
 	settings.setValue(constants::remoteServerUrlKey, ui->remoteServerUrl->text());
 
 	if((nodejsLocation != ui->nodejsLocation->text()) ||
-	        startLocalServer != ui->localServerSettingsGroup->isChecked() ||
-	        compilerExplorerLocation != ui->compilerExplorerLocation->text() ||
-	        useLocalServer != ui->useLocalServerButton->isChecked() ||
-	        localPort != ui->localPort->value() ||
-	        remoteServerUrl != ui->remoteServerUrl->text()) {
+			startLocalServer != ui->localServerSettingsGroup->isChecked() ||
+			compilerExplorerLocation != ui->compilerExplorerLocation->text() ||
+			useLocalServer != ui->useLocalServerButton->isChecked() ||
+			localPort != ui->localPort->value() ||
+			remoteServerUrl != ui->remoteServerUrl->text()) {
 		emit settingsChanged();
 	}
 }
 
 void CompilerExplorerOptionsWidget::on_toolButton_clicked() {
 	QString res = QFileDialog::getOpenFileName(this, tr("NodeJS"),
-	                                           QString(), tr("node ") + "(node**)");
+											   QString(), tr("node ") + "(node**)");
 	if(!res.isEmpty())
 		ui->nodejsLocation->setText(res);
 }

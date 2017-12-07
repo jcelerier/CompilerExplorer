@@ -5,8 +5,8 @@
 namespace compilerExplorer {
 namespace gui{
 CompilerExplorerOptionsPage::CompilerExplorerOptionsPage(QObject *parent)
-    : Core::IOptionsPage(parent),
-      mWidget(nullptr) {
+	: Core::IOptionsPage(parent),
+	  mWidget(nullptr) {
 	setId("CompilerExplorerSettings");
 	setDisplayName(tr("Compiler Explorer"));
 	setCategory("Compiler Explorer");

@@ -15,6 +15,7 @@ public:
 	QStringList filters() const;
 	void setFilters(const QStringList &filters);
 	void setFiltersKey(const QString &filtersKey);
+	void setUserArguments(const QString& opt);
 	QString requestName() const override;
 protected:
 	QJsonObject jsonRequest() const;
@@ -22,6 +23,7 @@ protected:
 private:
 	QStringList mFilters;
 	QString mFiltersKey;
+	QString mUserArgs;
 };
 }
 }

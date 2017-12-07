@@ -18,22 +18,24 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
+#include <cpptools/baseeditordocumentparser.h>
+
 namespace compilerExplorer {
 namespace gui{
 ExplorerOutputPane::ExplorerOutputPane(QObject *parent)
-    : Core::IOutputPane(parent),
-      mExplorer(nullptr),
-      mCompilerOptions(nullptr),
-      mRunButton(nullptr),
-      mBinary(nullptr),
-      mLabel(nullptr),
-      mDirectives(nullptr),
-      mCommentOnly(nullptr),
-      mIntel(nullptr),
-      mCurrentCompilerLabel(nullptr),
-      mCompilersList(nullptr),
-      mRequestSender(std::make_unique<network::RequestSender>(this)),
-      mRequestGenerator(std::make_unique<network::RequestGenerator>()){
+	: Core::IOutputPane(parent),
+	  mExplorer(nullptr),
+	  mCompilerOptions(nullptr),
+	  mRunButton(nullptr),
+	  mBinary(nullptr),
+	  mLabel(nullptr),
+	  mDirectives(nullptr),
+	  mCommentOnly(nullptr),
+	  mIntel(nullptr),
+	  mCurrentCompilerLabel(nullptr),
+	  mCompilersList(nullptr),
+	  mRequestSender(std::make_unique<network::RequestSender>(this)),
+	  mRequestGenerator(std::make_unique<network::RequestGenerator>()){
 	createTableView();
 	createCompilerOptions();
 	createButtons();
@@ -56,8 +58,8 @@ QWidget *ExplorerOutputPane::outputWidget(QWidget *parent) {
 QList<QWidget *> ExplorerOutputPane::toolBarWidgets() const {
 	QList<QWidget *> result;
 	result << mRunButton.get() << mCompilerOptions.get() << mBinary.get()
-	       << mLabel.get() << mDirectives.get() << mCommentOnly.get()
-	       << mIntel.get() << mCurrentCompilerLabel.get() << mCompilersList.get();
+		   << mLabel.get() << mDirectives.get() << mCommentOnly.get()
+		   << mIntel.get() << mCurrentCompilerLabel.get() << mCompilersList.get();
 	return result;
 }
 
@@ -134,21 +136,21 @@ void ExplorerOutputPane::createCompilerOptions() {
 
 void ExplorerOutputPane::createButtons() {
 	mRunButton = createButton(tr("Run"), tr("Send request"),
-	                          false, QIcon(":/images/run.png"));
+							  false, QIcon(":/images/run.png"));
 	mBinary = createButton(tr("11010"),
-	                       tr("Compile to binary and disassemble the output"));
+						   tr("Compile to binary and disassemble the output"));
 	mOptions.insert({mBinary, "binary"});
 	mLabel = createButton(tr(".LX0:"),
-	                      tr("Filter unused labels from the output"));
+						  tr("Filter unused labels from the output"));
 	mOptions.insert({mLabel, "labels"});
 	mDirectives = createButton(tr(".text"),
-	                           tr("Filter all assembler directives from the output"));
+							   tr("Filter all assembler directives from the output"));
 	mOptions.insert({mDirectives, "directives"});
 	mCommentOnly = createButton(tr("//"),
-	                            tr("Remove all lines which are only comments from the output"));
+								tr("Remove all lines which are only comments from the output"));
 	mOptions.insert({mCommentOnly, "commentOnly"});
 	mIntel = createButton(tr("Intel"),
-	                      tr("Output disassembly in Intel syntax"));
+						  tr("Output disassembly in Intel syntax"));
 	mOptions.insert({mIntel, "intel"});
 	connect(mRunButton.get(), &QToolButton::clicked, this, &ExplorerOutputPane::onRunClicked);
 }
@@ -173,15 +175,37 @@ void ExplorerOutputPane::createCompilersList() {
 void ExplorerOutputPane::onRunClicked() {
 	if(!mRequestSender)
 		return;
-	mRequestGenerator->setCompilerOptions(mCompilerOptions->text());
-	mRequestGenerator->setFilters(filters());
+	QString opts;
 	QByteArray source;
+
+	// Build a command line for the current include paths & defines
 	if(auto currentDocument = Core::EditorManager::currentDocument())
+	{
 		source = currentDocument->contents();
+
+		if(auto edit = CppTools::BaseEditorDocumentParser::get(currentDocument->filePath().toString())) {
+			if(auto part = edit->projectPartInfo().projectPart) {
+				for(const auto& header : part->headerPaths) {
+					opts += " -I" + header.path;
+				}
+
+				for(const auto& macro : part->projectMacros) {
+					opts += " -D" + QString::fromUtf8(macro.key);
+					if(!macro.value.isEmpty())
+						opts += "=" + QString::fromUtf8(macro.value);
+				}
+			}
+		}
+	}
+
+
+	mRequestGenerator->setCompilerOptions(opts + " " + mCompilerOptions->text());
+	mRequestGenerator->setFilters(filters());
 	auto unicodeSource = QTextCodec::codecForMib(106)->toUnicode(source); // 106 - utf8
 	mRequestGenerator->setSourceCode(unicodeSource);
 	mRequestGenerator->setCompilerLocation(mCompilersList->currentData().toString());
 	auto request = mRequestGenerator->createCompilerRequest();
+
 	auto reply = mRequestSender->sendRequest(std::move(request));
 	mExplorer->clear();
 	mExplorer->setText(QTextCodec::codecForMib(106)->toUnicode(reply));
@@ -209,10 +233,10 @@ void ExplorerOutputPane::updateCompilersList(const QString &address) {
 }
 
 std::map<QString, QString> ExplorerOutputPane::compilersList(const QString &address) const {
-	auto request = network::RequestGenerator::comilersListRequest(address);
-	auto reply = mRequestSender->sendRequest(std::move(request));
-	auto parsedCompilersList = network::CompilersListReplyParser::parse(reply);
-	return parsedCompilersList;
+	return {
+		{"%2Fusr%2Fbin%2Fclang%2B%2B", "/usr/bin/clang++"},
+		{"%2Fusr%2Fbin%2Fg%2B%2B", "/usr/bin/g++"}
+	};
 }
 
 }

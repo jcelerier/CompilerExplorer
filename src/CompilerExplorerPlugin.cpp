@@ -25,9 +25,9 @@ namespace compilerExplorer {
 namespace core {
 
 CompilerExplorerPlugin::CompilerExplorerPlugin()
-    : mOutputPane(nullptr),
-      mOptionsPage(nullptr),
-      mNodeJsServer(nullptr) {
+	: mOutputPane(nullptr),
+	  mOptionsPage(nullptr),
+	  mNodeJsServer(nullptr) {
 
 }
 
@@ -45,7 +45,7 @@ bool CompilerExplorerPlugin::initialize(const QStringList &arguments, QString *e
 
 	auto action = new QAction(QIcon(":/images/run.png"), tr("Run Compiler Explorer"), this);
 	Core::Command *cmd = Core::ActionManager::registerAction(action, constants::ACTION_ID,
-	                                                         Core::Context(Core::Constants::C_GLOBAL));
+															 Core::Context(Core::Constants::C_GLOBAL));
 	connect(action, &QAction::triggered, mOutputPane, &gui::ExplorerOutputPane::runCompilerExplorer);
 
 	Core::ActionContainer *menu = Core::ActionManager::createMenu(constants::MENU_ID);
@@ -59,9 +59,9 @@ bool CompilerExplorerPlugin::initialize(const QStringList &arguments, QString *e
 	ProjectExplorer::ProjectPanelFactory::registerFactory(mPanelFactory.get());
 	mOptionsPage = new gui::CompilerExplorerOptionsPage(this);
 	connect(mOptionsPage, &gui::CompilerExplorerOptionsPage::settingsChanged,
-	        this, &CompilerExplorerPlugin::restartNodeJsServer);
+			this, &CompilerExplorerPlugin::restartNodeJsServer);
 	connect(this, &CompilerExplorerPlugin::serverChanged,
-	        this, &CompilerExplorerPlugin::updateGui);
+			this, &CompilerExplorerPlugin::updateGui);
 	addAutoReleasedObject(mOptionsPage);
 	mNodeJsServer = new QProcess(this);
 	restartNodeJsServer();
@@ -79,7 +79,7 @@ void CompilerExplorerPlugin::restartNodeJsServer() {
 	const auto &settings = mOptionsPage->settings();
 	const auto nodeJsLocation = settings.value(constants::nodejsFileNameKey).toString();
 	const auto compilerExplorerLocation = settings.value(constants::compilerExplorerLocationKey,
-	                                                     QString()).toString();
+														 QString()).toString();
 	const auto useLocalServer = settings.value(constants::useLocalServerKey).toBool();
 	const auto startLocalServer = settings.value(constants::startLocalServerKey).toBool();
 	const auto localPort = settings.value(constants::localServerPortKey, 10240).toInt();
@@ -99,7 +99,7 @@ void CompilerExplorerPlugin::restartNodeJsServer() {
 	}
 	QStringList args;
 	args << compilerExplorerLocation +"/app.js" << "--language C++"
-	     << "--port=" + QString::number(localPort);
+		 << "--port=" + QString::number(localPort);
 	mNodeJsServer->setWorkingDirectory(compilerExplorerLocation);
 	mNodeJsServer->start(nodeJsLocation + " " + args.join(" "));
 	emit serverChanged();

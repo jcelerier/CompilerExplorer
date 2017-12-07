@@ -24,11 +24,11 @@ public:
 };
 
 RequestGenerator::RequestGenerator()
-    : RequestGenerator(QString(), 0) {
+	: RequestGenerator(QString(), 0) {
 }
 
 RequestGenerator::RequestGenerator(const QString &address, const int port)
-    : d(std::make_unique<RequestGeneratorPrivate>()) {
+	: d(std::make_unique<RequestGeneratorPrivate>()) {
 	d->address = address;
 	d->port = port;
 }
@@ -41,7 +41,7 @@ std::unique_ptr<Request> RequestGenerator::createCompilerRequest() {
 	result->setAddress(QString("%1/api/compiler/%2/compile").arg(d->address).arg(d->compilerLocation));
 	result->addParameter(compilerLocationKey, d->compilerLocation);
 	result->addParameter(sourceCodeKey, d->sourceCode);
-	result->addParameter(compilerOptionsKey, d->compilerOptions);
+	result->setUserArguments(d->compilerOptions);
 	result->setFilters(d->filters);
 	result->setFiltersKey(filtersKey);
 	return std::move(result);
@@ -98,7 +98,7 @@ void RequestGenerator::updateSettings(const QSettings &settings) {
 	setPort(port);
 }
 
-std::unique_ptr<Request> RequestGenerator::comilersListRequest(const QString &address) {
+std::unique_ptr<Request> RequestGenerator::compilersListRequest(const QString &address) {
 	auto result = std::make_unique<GetRequest>();
 	auto serverAddress = address;
 	if (serverAddress.endsWith("/")) {
